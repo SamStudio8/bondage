@@ -22,6 +22,9 @@ def main(args):
     if args.dropid:
         meta_header_fields.pop(args.mcol-1)
 
+    if len(set(meta_header_fields)) != len(meta_header_fields):
+        sys.stderr.write("Hey, listen! You have a duplicate key in your meta columns.\nThis will likely duplicate one column and suppress another.\n")
+
     field_index = list([i for i in range(len(meta_header_fields))])
     for line in META_FH:
         if len(line.strip()) == 0:
