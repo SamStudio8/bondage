@@ -7,7 +7,7 @@ I use <data> and <meta> rather loosely, but note that the many-to-one relationsh
 is one way. That is, the <meta> rows can be glued to multiple <data> rows, but
 not the other way around.
 
-Usage: <data> <meta>"""
+Usage: bond <data> <meta>"""
 
 import sys
 import argparse
@@ -54,18 +54,16 @@ def main(args):
         fields = line.strip().split(args.dsep)
         data_id = fields[args.dcol - 1]
 
+        best_key = None
         if args.greedy:
             key_sizes = [len(x) if data_id.startswith(x) else 0 for x in sorted(meta)]
-
-            if sum(key_sizes) == 0:
-                best_key = None
-            else:
+            if sum(key_sizes) != 0:
                 best_key = sorted(meta)[key_sizes.index(max(key_sizes))]
             metadata = [str(meta.get(best_key, {}).get(x, args.fill)) for x in meta_header_fields]
         else:
             metadata = [str(meta.get(data_id, {}).get(x, args.fill)) for x in meta_header_fields]
 
-        if data_id not in meta and dline_i == 0:
+        if data_id not in meta and dline_i == 0 and not best_key:
             sys.stderr.write("First <data> row id was not found in <meta>, did you forget to specify --mheader for a headerless <meta>?")
 
         print('\t'.join(fields) + '\t' + "\t".join(metadata))
