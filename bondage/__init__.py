@@ -13,7 +13,11 @@ import sys
 import argparse
 
 def main(args):
-    META_FH = open(args.meta)
+    if args.meta == '-':
+        META_FH = sys.stdin
+    else:
+        META_FH = open(args.meta)
+
     meta = {}
     if args.mheader:
         meta_header_fields = args.mheader.split(",")
@@ -42,7 +46,10 @@ def main(args):
     META_FH.close()
 
 
-    DATA_FH = open(args.data)
+    if args.data == '-':
+        DATA_FH = sys.stdin
+    else:
+        DATA_FH = open(args.data)
 
     if args.dheader:
         data_header_fields = args.dheader.split(",")
