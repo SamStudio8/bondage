@@ -60,7 +60,7 @@ def main(args):
     append_names = []
     append_values = []
     if args.append:
-        append_ = [x.split(":") for x in args.append]
+        append_ = [x.split(":") for x in args.append.split(",")]
         append_names = [x[0] for x in append_]
         append_values = [x[1] for x in append_]
 
