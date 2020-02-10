@@ -56,7 +56,15 @@ def main(args):
     else:
         data_header_fields = DATA_FH.readline().strip().split(args.dsep)
 
-    print("\t".join(data_header_fields + meta_header_fields))
+
+    append_names = []
+    append_values = []
+    if args.append:
+        append_ = [(name, value) for x.split(":") for x in args.append]
+        append_names = [x[0] for x in append_]
+        append_values = [x[1] for x in append_]
+
+    print("\t".join(data_header_fields + meta_header_fields + append_names))
     for dline_i, line in enumerate(DATA_FH):
         fields = line.strip().split(args.dsep)
         data_id = fields[args.dcol - 1]
@@ -73,7 +81,7 @@ def main(args):
         if data_id not in meta and dline_i == 0 and not best_key:
             sys.stderr.write("First <data> row id was not found in <meta>, did you forget to specify --mheader for a headerless <meta>?")
 
-        print('\t'.join(fields) + '\t' + "\t".join(metadata))
+        print('\t'.join(fields) + '\t' + "\t".join(metadata + append_values))
 
 
 def cli():
@@ -91,6 +99,7 @@ def cli():
     parser.add_argument("--fill", help="value to fill meta cols if the ID does not appear in the meta (default -)", default="-")
     parser.add_argument("--dropid", help="drop the joining field from the metafile (default False)", action="store_true", default=False)
     parser.add_argument("--greedy", help="greedily match a meta ID to the start of the input data", action="store_true")
+    parser.add_argument("--append", help="append some values to the end of every output row [format name1:value1,name2:value2,...]", default="")
 
     main(parser.parse_args())
 
