@@ -13,6 +13,10 @@ import sys
 import argparse
 
 def main(args):
+
+    args.dcol = [int(x) for x in args.mcol.split(',')]
+    args.mcol = [int(x) for x in args.mcol.split(',')]
+
     if args.meta == '-':
         META_FH = sys.stdin
     else:
@@ -35,7 +39,7 @@ def main(args):
             print("Blank line."); sys.exit(1)
         fields = line.strip().split(args.msep)
 
-        meta_id = fields[args.mcol-1]
+        meta_id = ":".join(fields[mcol-1] for mcol in args.mcol)
         if args.dropid:
             fields.pop(args.mcol-1)
 
@@ -67,7 +71,7 @@ def main(args):
     print("\t".join(data_header_fields + meta_header_fields + append_names))
     for dline_i, line in enumerate(DATA_FH):
         fields = line.strip().split(args.dsep)
-        data_id = fields[args.dcol - 1]
+        data_id = ":".join(fields[dcol - 1] for dcol in args.dcol)
 
         best_key = None
         if args.greedy:
@@ -94,11 +98,11 @@ def cli():
     parser.add_argument("--mheader", help="comma-delimited list of headers for meta data, you must provide this if a header is missing")
     parser.add_argument("--dsep", help="data separator (default \\t)", default="\t")
     parser.add_argument("--msep", help="meta separator (default \\t)", default="\t")
-    parser.add_argument("--dcol", help="data ID column number (1-based, default 1)", default=1, type=int)
-    parser.add_argument("--mcol", help="meta ID column number (1-based, default 1)", default=1, type=int)
+    parser.add_argument("--dcol", help="data ID column numbers (1-based, default 1)", default='1')
+    parser.add_argument("--mcol", help="meta ID column numbers (1-based, default 1)", default='1')
     parser.add_argument("--fill", help="value to fill meta cols if the ID does not appear in the meta (default -)", default="-")
-    parser.add_argument("--dropid", help="drop the joining field from the metafile (default False)", action="store_true", default=False)
-    parser.add_argument("--greedy", help="greedily match a meta ID to the start of the input data", action="store_true")
+    parser.add_argument("--dropid", help="drop the joining field(s) from the metafile (default False)", action="store_true", default=False)
+    parser.add_argument("--greedy", help="greedily match a meta ID to the start of the input data (will only greedily match the first colum in a multicolumn bond)", action="store_true")
     parser.add_argument("--append", help="append some values to the end of every output row [format name1:value1,name2:value2,...]", default="")
 
     main(parser.parse_args())
