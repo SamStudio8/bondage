@@ -28,7 +28,10 @@ def main(args):
     else:
         meta_header_fields = META_FH.readline().strip().split(args.msep)
     if args.dropid:
-        meta_header_fields.pop(args.mcol-1)
+        dropped = 0
+        for mcol in sorted(args.mcol):
+            meta_header_fields.pop(mcol-1-dropped)
+            dropped += 1
 
     if len(set(meta_header_fields)) != len(meta_header_fields):
         sys.stderr.write("Hey, listen! You have a duplicate key in your meta columns.\nThis will likely duplicate one column and suppress another.\n")
@@ -41,7 +44,10 @@ def main(args):
 
         meta_id = ":".join(fields[mcol-1] for mcol in args.mcol)
         if args.dropid:
-            fields.pop(args.mcol-1)
+            dropped = 0
+            for mcol in sorted(args.mcol):
+                fields.pop(mcol-1-dropped)
+                dropped += 1
 
         meta[ meta_id ] = {
             meta_header_fields[i] : fields[i] for i in field_index
