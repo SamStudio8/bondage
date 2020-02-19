@@ -14,7 +14,7 @@ import argparse
 
 def main(args):
 
-    args.dcol = [int(x) for x in args.mcol.split(',')]
+    args.dcol = [int(x) for x in args.dcol.split(',')]
     args.mcol = [int(x) for x in args.mcol.split(',')]
 
     if args.meta == '-':
