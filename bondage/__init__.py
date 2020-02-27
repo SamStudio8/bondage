@@ -17,10 +17,12 @@ def coerce_cols(l, labels):
         try:
             # Coerce column to 0-indexed int
             l[t_i] = int(t_col)-1
+            continue
         except ValueError:
             # Otherwise it's a named column
             try:
                 l[t_i] = labels.index(t_col)
+                continue
             except ValueError:
                 # Pass through to general Exception
                 pass
