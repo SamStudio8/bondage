@@ -110,7 +110,8 @@ def main(args):
 
         if data_id not in meta and dline_i == 0 and not best_key:
             sys.stderr.write("First <data> row id was not found in <meta>, did you forget to specify --mheader for a headerless <meta>?")
-
+            if not args.force:
+                raise Exception
         print('\t'.join(fields) + '\t' + "\t".join(metadata + append_values))
 
 
@@ -130,6 +131,7 @@ def cli():
     parser.add_argument("--dropid", help="drop the joining field(s) from the metafile (default False)", action="store_true", default=False)
     parser.add_argument("--greedy", help="greedily match a meta ID to the start of the input data (will only greedily match the first colum in a multicolumn bond)", action="store_true")
     parser.add_argument("--append", help="append some values to the end of every output row [format name1:value1,name2:value2,...]", default="")
+    parser.add_argument("--force", help="Do whatever it takes to run this command successfully, even if it produces absolute garbage", action="store_true")
 
     main(parser.parse_args())
 
