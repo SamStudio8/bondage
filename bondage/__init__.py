@@ -99,7 +99,7 @@ def main(args):
     print("\t".join(data_header_fields + meta_header_fields + append_names))
     for dline_i, line in enumerate(DATA_FH):
         fields = line.strip().split(args.dsep)
-        data_id = ":".join(fields[dcol - 1] for dcol in args.dcol)
+        data_id = ":".join(fields[dcol] for dcol in args.dcol)
 
         best_key = None
         if args.greedy:
@@ -111,7 +111,9 @@ def main(args):
             metadata = [str(meta.get(data_id, {}).get(x, args.fill)) for x in meta_header_fields]
 
         if data_id not in meta and dline_i == 0 and not best_key:
-            sys.stderr.write("First <data> row id was not found in <meta>, did you forget to specify --mheader for a headerless <meta>?")
+            sys.stderr.write("First <data> row id (%s) was not found in <meta>, did you forget to specify --mheader for a headerless <meta>?\n")
+            sys.stderr.write("Data: %s\n" % (str(data_id)))
+            sys.stderr.write("Meta: %s\n" % (str(meta)))
             if not args.force:
                 raise Exception
         print('\t'.join(fields) + '\t' + "\t".join(metadata + append_values))
