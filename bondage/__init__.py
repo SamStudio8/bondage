@@ -12,25 +12,57 @@ Usage: bond <data> <meta>"""
 import sys
 import argparse
 
+def coerce_cols(l):
+    for t_i, t_col in enumerate(l, labels):
+        try:
+            # Coerce column to 0-indexed int
+            l[t_i] = int(t_col)-1
+        except ValueError:
+            # Otherwise it's a named column
+            try:
+                l[t_i] = labels.index(t_col)
+            except ValueError:
+                # Pass through to general Exception
+                pass
+        raise Exception("Could not coerce column '%d:%s' to a column in %s" % (t_i, t_col, labels))
+    return l
+
 def main(args):
 
-    args.dcol = [int(x) for x in args.dcol.split(',')]
-    args.mcol = [int(x) for x in args.mcol.split(',')]
 
+    # Open data stream
+    if args.data == '-':
+        DATA_FH = sys.stdin
+    else:
+        DATA_FH = open(args.data)
+
+    # Read data header (or parse the provided one)
+    if args.dheader:
+        data_header_fields = args.dheader.split(",")
+    else:
+        data_header_fields = DATA_FH.readline().strip().split(args.dsep)
+
+    # Open meta stream
     if args.meta == '-':
         META_FH = sys.stdin
     else:
         META_FH = open(args.meta)
 
+    # Read meta header (or parse the provided one)
     meta = {}
     if args.mheader:
         meta_header_fields = args.mheader.split(",")
     else:
         meta_header_fields = META_FH.readline().strip().split(args.msep)
+
+    args.dcol = coerce_cols(args.dcol.split(','), data_header_fields)
+    args.mcol = coerce_cols(args.mcol.split(','), meta_header_fields)
+
+    # Drop repeated columns if desired
     if args.dropid:
         dropped = 0
         for mcol in sorted(args.mcol):
-            meta_header_fields.pop(mcol-1-dropped)
+            meta_header_fields.pop(mcol-dropped)
             dropped += 1
 
     if len(set(meta_header_fields)) != len(meta_header_fields):
@@ -42,11 +74,11 @@ def main(args):
             print("Blank line."); sys.exit(1)
         fields = line.strip().split(args.msep)
 
-        meta_id = ":".join(fields[mcol-1] for mcol in args.mcol)
+        meta_id = ":".join(fields[mcol] for mcol in args.mcol)
         if args.dropid:
             dropped = 0
             for mcol in sorted(args.mcol):
-                fields.pop(mcol-1-dropped)
+                fields.pop(mcol-dropped)
                 dropped += 1
 
         meta[ meta_id ] = {
@@ -54,18 +86,6 @@ def main(args):
         }
 
     META_FH.close()
-
-
-    if args.data == '-':
-        DATA_FH = sys.stdin
-    else:
-        DATA_FH = open(args.data)
-
-    if args.dheader:
-        data_header_fields = args.dheader.split(",")
-    else:
-        data_header_fields = DATA_FH.readline().strip().split(args.dsep)
-
 
     append_names = []
     append_values = []
