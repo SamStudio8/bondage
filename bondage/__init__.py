@@ -12,8 +12,8 @@ Usage: bond <data> <meta>"""
 import sys
 import argparse
 
-def coerce_cols(l):
-    for t_i, t_col in enumerate(l, labels):
+def coerce_cols(l, labels):
+    for t_i, t_col in enumerate(l):
         try:
             # Coerce column to 0-indexed int
             l[t_i] = int(t_col)-1
